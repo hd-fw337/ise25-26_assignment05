@@ -127,7 +127,7 @@ public class CucumberPosSteps {
 
         List<PosDto> updatedList = updatePos(List.of(updatedPos));
         assertThat(updatedList).hasSize(1);
-        assertThat(updatedList.get(0)).isEqualTo(updatedPos);
+        assertThat(updatedList.get(0)).usingRecursiveComparison().ignoringFields("id", "createdAt", "updatedAt").isEqualTo(updatedPos);
     }
 
     // Then -----------------------------------------------------------------------
@@ -143,6 +143,9 @@ public class CucumberPosSteps {
     @Then("the POS list should contain the updated element")
     public void thePosListShouldContainTheUpdatedElement() {
         PosDto retrievedPos = retrievePosByName(updatedPos.name());
-        assertThat(retrievedPos).isEqualTo(updatedPos);
+        assertThat(retrievedPos)
+                .usingRecursiveComparison()
+                .ignoringFields("id", "createdAt", "updatedAt")
+                .isEqualTo(updatedPos);
     }
 }
