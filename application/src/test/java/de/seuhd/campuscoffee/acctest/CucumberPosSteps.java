@@ -91,7 +91,11 @@ public class CucumberPosSteps {
         assertThat(retrievedPosList).isEmpty();
     }
 
-    // TODO: Add Given step for new scenario
+    @Given("an existing POS list") // Die alte Liste muss gegeben sein
+    public void updateOneOfTheExistingPos(List<PosDto> posList) {
+        createdPosList = createPos(posList);
+        assertThat(createdPosList).size().isEqualTo(posList.size());
+    }
 
     // When -----------------------------------------------------------------------
 
@@ -101,7 +105,30 @@ public class CucumberPosSteps {
         assertThat(createdPosList).size().isEqualTo(posList.size());
     }
 
-    // TODO: Add When step for new scenario
+    @When("I update the POS with name {string} to the following")
+    public void updatePosWithName(String name, PosDto newPosData) {
+        // find the POS to update by name
+        PosDto posToUpdate = createdPosList.stream()
+                .filter(pos -> pos.name().equals(name))
+                .findFirst()
+                .orElseThrow(() -> new AssertionError("POS with name " + name + " not found"));
+
+        updatedPos = PosDto.builder()
+                .id(posToUpdate.id())
+                .name(newPosData.name())
+                .description(newPosData.description())
+                .type(newPosData.type())
+                .campus(newPosData.campus())
+                .street(newPosData.street())
+                .houseNumber(newPosData.houseNumber())
+                .postalCode(newPosData.postalCode())
+                .city(newPosData.city())
+                .build();
+
+        List<PosDto> updatedList = updatePos(List.of(updatedPos));
+        assertThat(updatedList).hasSize(1);
+        assertThat(updatedList.get(0)).isEqualTo(updatedPos);
+    }
 
     // Then -----------------------------------------------------------------------
 
@@ -113,5 +140,9 @@ public class CucumberPosSteps {
                 .containsExactlyInAnyOrderElementsOf(createdPosList);
     }
 
-    // TODO: Add Then step for new scenario
+    @Then("the POS list should contain the updated element")
+    public void thePosListShouldContainTheUpdatedElement() {
+        PosDto retrievedPos = retrievePosByName(updatedPos.name());
+        assertThat(retrievedPos).isEqualTo(updatedPos);
+    }
 }
